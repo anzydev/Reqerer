@@ -95,19 +95,43 @@ export interface ProxyStatus {
   history_count: number;
 }
 
-const DEFAULT_REMOTE_BACKEND = 'https://reqerer-backend.onrender.com';
+export const DEFAULT_REMOTE_BACKEND = 'https://reqerer-backend.onrender.com';
 
-const API_BASE = (
-  import.meta.env.VITE_API_BASE_URL ||
-  (typeof window !== 'undefined' &&
-   window.location.hostname !== 'localhost' &&
-   window.location.hostname !== '127.0.0.1'
-    ? DEFAULT_REMOTE_BACKEND
-    : '')
-).replace(/\/$/, '');
+export function getBackendUrl(): string {
+  if (typeof window !== 'undefined') {
+    const custom = localStorage.getItem('reqerer_custom_backend_url');
+    if (custom && custom.trim()) {
+      return custom.trim().replace(/\/$/, '');
+    }
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return (import.meta.env.VITE_API_BASE_URL || DEFAULT_REMOTE_BACKEND).replace(/\/$/, '');
+    }
+  }
+  return (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+}
+
+export function setCustomBackendUrl(url: string | null): void {
+  if (typeof window !== 'undefined') {
+    if (url && url.trim()) {
+      localStorage.setItem('reqerer_custom_backend_url', url.trim().replace(/\/$/, ''));
+    } else {
+      localStorage.removeItem('reqerer_custom_backend_url');
+    }
+  }
+}
+
+export interface DiagnosticLog {
+  timestamp: string;
+  targetUrl: string;
+  success: boolean;
+  durationMs: number;
+  statusCode?: number;
+  errorDetail?: string;
+}
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const url = `${API_BASE}${path}`;
+  const base = getBackendUrl();
+  const url = `${base}${path}`;
   const response = await fetch(url, options);
   if (!response.ok) {
     let message = `API request failed: ${response.status} ${response.statusText}`;
@@ -122,29 +146,68 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function checkBackendConnection(): Promise<boolean> {
-  // Render free tier can take 15-30s to cold boot.
-  // We try twice: first attempt wakes the server, second connects.
-  const MAX_RETRIES = 2;
-  const TIMEOUT_MS = 60_000; // 60s — generous for cold boot
+export async function checkBackendConnectionDetailed(
+  timeoutMs = 45_000
+): Promise<{ success: boolean; log: DiagnosticLog }> {
+  const target = `${getBackendUrl()}/health`;
+  const startTime = performance.now();
+  const timestamp = new Date().toLocaleTimeString();
 
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      const response = await fetch(`${API_BASE}/health`, {
-        signal: AbortSignal.timeout(TIMEOUT_MS),
-        cache: 'no-store',
-        mode: 'cors',
-      });
-      if (response.ok) return true;
-    } catch (err) {
-      console.warn(`Backend health check attempt ${attempt}/${MAX_RETRIES}:`, err);
-      if (attempt < MAX_RETRIES) {
-        // Brief pause before retry
-        await new Promise((r) => setTimeout(r, 2000));
-      }
+  try {
+    const response = await fetch(target, {
+      signal: AbortSignal.timeout(timeoutMs),
+      cache: 'no-store',
+      mode: 'cors',
+    });
+    const durationMs = Math.round(performance.now() - startTime);
+
+    if (response.ok) {
+      return {
+        success: true,
+        log: {
+          timestamp,
+          targetUrl: target,
+          success: true,
+          durationMs,
+          statusCode: response.status,
+        },
+      };
     }
+
+    return {
+      success: false,
+      log: {
+        timestamp,
+        targetUrl: target,
+        success: false,
+        durationMs,
+        statusCode: response.status,
+        errorDetail: `HTTP Error ${response.status}: ${response.statusText}`,
+      },
+    };
+  } catch (err: unknown) {
+    const durationMs = Math.round(performance.now() - startTime);
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    const isTimeout = errorMsg.toLowerCase().includes('aborted') || errorMsg.toLowerCase().includes('timeout');
+
+    return {
+      success: false,
+      log: {
+        timestamp,
+        targetUrl: target,
+        success: false,
+        durationMs,
+        errorDetail: isTimeout
+          ? `Connection timed out after ${(timeoutMs / 1000).toFixed(0)}s (Server may be booting up)`
+          : `Network request failed: ${errorMsg}`,
+      },
+    };
   }
-  return false;
+}
+
+export async function checkBackendConnection(): Promise<boolean> {
+  const result = await checkBackendConnectionDetailed(35_000);
+  return result.success;
 }
 
 export const checkHealth = checkBackendConnection;
@@ -198,7 +261,7 @@ export async function shutdownBackend(): Promise<void> {
 }
 
 export function createEventSource(runId: string): EventSource {
-  return new EventSource(`${API_BASE}/api/run/${runId}/stream`);
+  return new EventSource(`${getBackendUrl()}/api/run/${runId}/stream`);
 }
 
 // ── Proxy API Functions ──────────────────────────────────────────────────────
@@ -236,7 +299,7 @@ export function getProxyHistory(): Promise<ProxyHistoryItem[]> {
 }
 
 export function createProxyEventSource(): EventSource {
-  return new EventSource(`${API_BASE}/api/proxy/stream`);
+  return new EventSource(`${getBackendUrl()}/api/proxy/stream`);
 }
 
 export function openProxyBrowser(url: string = 'https://www.google.com'): Promise<{ status: string }> {
