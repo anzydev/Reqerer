@@ -33,7 +33,7 @@ const DEFAULT_CONFIG: TestConfig = {
 };
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'intercept' | 'intruder'>('intercept');
+  const [activeTab, setActiveTab] = useState<'intercept' | 'intruder'>('intruder');
   const [rawRequest, setRawRequest] = useState(DEFAULT_REQUEST);
   const [config, setConfig] = useState<TestConfig>(DEFAULT_CONFIG);
   const [parseError, setParseError] = useState<string | null>(null);
