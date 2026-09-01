@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://reqerer-backend.onrender.com/api/:path*"
+    },
+    {
+      "source": "/health",
+      "destination": "https://reqerer-backend.onrender.com/health"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
