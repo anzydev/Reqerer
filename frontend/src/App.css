@@ -1360,3 +1360,264 @@ html, body, #root {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* ── Connection Overlay & Diagnostics Modal ─────────────────────────────── */
+.connection-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 15, 15, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 20px;
+  animation: fadeIn 200ms ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.connection-overlay-card {
+  width: 100%;
+  max-width: 540px;
+  background: #252526;
+  border: 1px solid #3c3c3c;
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.05);
+  padding: 28px 24px;
+  text-align: center;
+  animation: scaleUp 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.connection-spinner-glow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.connection-spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(86, 156, 214, 0.2);
+  border-top-color: #569cd6;
+  border-radius: 50%;
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.connection-error-icon {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 2px 8px rgba(244, 135, 113, 0.4));
+}
+
+.connection-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.connection-title.error-title {
+  color: #f48771;
+}
+
+.connection-subtitle {
+  font-size: 0.85rem;
+  color: #cccccc;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+
+.connection-note {
+  display: inline-block;
+  margin-top: 6px;
+  color: #858585;
+  font-size: 0.78rem;
+}
+
+.connection-target-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  color: #9cdcfe;
+  margin-top: 6px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #569cd6;
+  border-radius: 50%;
+  animation: pulseDot 1.4s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.5; box-shadow: 0 0 0 0 rgba(86, 156, 214, 0.6); }
+  70% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 0 6px rgba(86, 156, 214, 0); }
+  100% { transform: scale(0.9); opacity: 0.5; box-shadow: 0 0 0 0 rgba(86, 156, 214, 0); }
+}
+
+.elapsed-timer {
+  background: #2d2d2d;
+  color: #dcdcaa;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+/* ── Diagnostic Failure Log Box ── */
+.connection-log-box {
+  background: #181818;
+  border: 1px solid #2d2d2d;
+  border-radius: 4px;
+  margin: 16px 0;
+  text-align: left;
+  overflow: hidden;
+}
+
+.log-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1f1f1f;
+  padding: 6px 12px;
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.log-box-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #858585;
+  letter-spacing: 0.05em;
+}
+
+.log-timestamp {
+  font-size: 0.7rem;
+  color: #6a9955;
+}
+
+.log-box-body {
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.log-line {
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+
+.log-line:last-child {
+  margin-bottom: 0;
+}
+
+.log-key {
+  color: #858585;
+  margin-right: 6px;
+}
+
+.log-val {
+  color: #cccccc;
+}
+
+.status-err {
+  color: #f48771;
+  font-weight: 600;
+}
+
+.err-text {
+  color: #f48771;
+}
+
+/* ── Actions ── */
+.connection-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.connection-retry-btn {
+  background: #0e639c;
+  color: #ffffff;
+  padding: 8px 18px;
+  font-weight: 600;
+}
+
+.connection-retry-btn:hover {
+  background: #1177bb;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #858585;
+  border: 1px solid transparent;
+  padding: 7px 12px;
+  font-size: 0.8125rem;
+}
+
+.btn-ghost:hover {
+  color: #cccccc;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Custom URL Form ── */
+.custom-url-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #2d2d2d;
+  text-align: left;
+}
+
+.custom-url-label {
+  display: block;
+  font-size: 0.78rem;
+  color: #9cdcfe;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.custom-url-input-group {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.custom-url-input {
+  flex: 1;
+  background: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  border-radius: 3px;
+  color: #cccccc;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+}
+
+.custom-url-input:focus {
+  outline: none;
+  border-color: #007acc;
+}
