@@ -17,12 +17,15 @@ class SubstitutionError(Exception):
     """Raised when substitution configuration is invalid."""
 
 
+_PH = "\x00LITERAL_DOLLAR\x00"
+_INITIAL_MARKER_RE = re.compile(r"\$(-?\d+)\$")
+_ENCLOSED_MARKER_RE = re.compile(r"\$([^\$\s&/?]+)\$")
+
+
 def detect_initial_marker_value(template: str) -> int | None:
     """Detect if template contains a numerical marker like $2$ or $100$."""
-    PH = "\x00LITERAL_DOLLAR\x00"
-    cleaned = template.replace("$$", PH)
-
-    match = re.search(r"\$(-?\d+)\$", cleaned)
+    cleaned = template.replace("$$", _PH)
+    match = _INITIAL_MARKER_RE.search(cleaned)
     if match:
         try:
             return int(match.group(1))
@@ -60,17 +63,16 @@ def substitute(template: str, value: int) -> str:
     $$ is treated as a literal $.
     """
     val_str = str(value)
-    PH = "\x00LITERAL_DOLLAR\x00"
-    text = template.replace("$$", PH)
+    text = template.replace("$$", _PH)
 
     # Replace enclosed $CONTENT$ markers (e.g. $2$, $100$)
-    text = re.sub(r"\$([^\$\s&/?]+)\$", val_str, text)
+    text = _ENCLOSED_MARKER_RE.sub(val_str, text)
 
     # Replace any remaining single $ markers
     text = text.replace("$", val_str)
 
     # Restore literal dollars
-    return text.replace(PH, "$")
+    return text.replace(_PH, "$")
 
 
 def generate_requests(template: str, config: TestConfig) -> list[tuple[int, str]]:
