@@ -57,7 +57,12 @@ export default function BackendToggle({ connected, onToggle }: BackendToggleProp
     : 'Backend Disconnected';
 
   return (
-    <div className="backend-toggle-container">
+    <div
+      className="backend-toggle-container"
+      onClick={() => void handleToggleClick()}
+      style={{ cursor: 'pointer' }}
+      title={connected ? 'Click to disconnect backend' : 'Click to reconnect backend'}
+    >
       <div className="backend-status-info">
         {checking ? (
           <span className="spinner spinner-sm" />
@@ -70,7 +75,10 @@ export default function BackendToggle({ connected, onToggle }: BackendToggleProp
       <button
         type="button"
         className={`toggle-switch ${connected ? 'active' : ''}`}
-        onClick={() => void handleToggleClick()}
+        onClick={(e) => {
+          e.stopPropagation();
+          void handleToggleClick();
+        }}
         disabled={checking}
         title={connected ? 'Click to disconnect backend' : 'Click to reconnect backend'}
         aria-label="Toggle backend connection"
