@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.pytest_cache/
+*.log
+.coverage
+htmlcov/
+
+# Local Generated Certificates & Keys
+*.key
+*.pem
+*.crt
+backend/reqerer-ca.key
+backend/reqerer-ca.crt
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+!.env.production
+*.local
+
+# Node & Frontend
+node_modules/
+dist/
+dist-ssr/
+
+# IDE & OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+.vercel
