@@ -123,16 +123,28 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export async function checkBackendConnection(): Promise<boolean> {
-  try {
-    const response = await fetch(`${API_BASE}/health`, {
-      signal: AbortSignal.timeout(12_000),
-      cache: 'no-store',
-    });
-    return response.ok;
-  } catch (err) {
-    console.warn('Backend health check warning:', err);
-    return false;
+  // Render free tier can take 15-30s to cold boot.
+  // We try twice: first attempt wakes the server, second connects.
+  const MAX_RETRIES = 2;
+  const TIMEOUT_MS = 60_000; // 60s — generous for cold boot
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(`${API_BASE}/health`, {
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+        cache: 'no-store',
+        mode: 'cors',
+      });
+      if (response.ok) return true;
+    } catch (err) {
+      console.warn(`Backend health check attempt ${attempt}/${MAX_RETRIES}:`, err);
+      if (attempt < MAX_RETRIES) {
+        // Brief pause before retry
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    }
   }
+  return false;
 }
 
 export const checkHealth = checkBackendConnection;

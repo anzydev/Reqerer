@@ -34,7 +34,8 @@ export default function BackendToggle({ connected, onToggle }: BackendToggleProp
   useEffect(() => {
     activeRef.current = true;
     void doPing();
-    const interval = window.setInterval(() => void doPing(), 4000);
+    // Poll every 15s — Render cold boots can take 22s+, so rapid polling is wasteful
+    const interval = window.setInterval(() => void doPing(), 15_000);
     return () => {
       activeRef.current = false;
       window.clearInterval(interval);
@@ -51,7 +52,7 @@ export default function BackendToggle({ connected, onToggle }: BackendToggleProp
   };
 
   const statusLabel = checking
-    ? 'Checking…'
+    ? 'Waking up backend…'
     : connected
     ? 'Backend Connected'
     : 'Backend Disconnected';
@@ -61,7 +62,13 @@ export default function BackendToggle({ connected, onToggle }: BackendToggleProp
       className="backend-toggle-container"
       onClick={() => void handleToggleClick()}
       style={{ cursor: 'pointer' }}
-      title={connected ? 'Click to disconnect backend' : 'Click to reconnect backend'}
+      title={
+        checking
+          ? 'Connecting to backend (may take 15-30s on first load)…'
+          : connected
+          ? 'Click to disconnect backend'
+          : 'Click to reconnect backend'
+      }
     >
       <div className="backend-status-info">
         {checking ? (
@@ -80,7 +87,13 @@ export default function BackendToggle({ connected, onToggle }: BackendToggleProp
           void handleToggleClick();
         }}
         disabled={checking}
-        title={connected ? 'Click to disconnect backend' : 'Click to reconnect backend'}
+        title={
+          checking
+            ? 'Connecting…'
+            : connected
+            ? 'Click to disconnect backend'
+            : 'Click to reconnect backend'
+        }
         aria-label="Toggle backend connection"
       >
         <span className="toggle-slider" />
