@@ -241,7 +241,11 @@ async def shutdown_pc() -> dict:
         subprocess.Popen(cmd)
         return {"status": "pc_shutting_down", "os": sys_name, "cmd": " ".join(cmd)}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to execute shutdown: {e}")
+        return {
+            "status": "cloud_or_restricted",
+            "message": "All test runs stopped. Physical PC shutdown is only available when running locally on your computer.",
+            "detail": str(e),
+        }
 
 
 @router.get("/run/{run_id}", response_model=RunStatus)

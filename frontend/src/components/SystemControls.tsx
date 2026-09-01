@@ -16,11 +16,17 @@ export function ShutdownPCButton() {
     try {
       setStage('Stopping active tests…');
       await killAllRuns().catch(() => {});
-      setStage('Triggering OS shutdown…');
-      await shutdownPC().catch(() => {});
-      setStage('OS Shutdown command sent! Shutting down computer…');
+      setStage('Triggering shutdown…');
+      const res = await shutdownPC();
+      if (res.status === 'cloud_or_restricted') {
+        setStage(res.message || 'All test runs stopped.');
+      } else if (res.status === 'pc_shutting_down') {
+        setStage('OS Shutdown command sent! Shutting down computer…');
+      } else {
+        setStage(res.message || 'All tests stopped.');
+      }
     } catch {
-      setStage('OS Shutdown command sent!');
+      setStage('All active test runs stopped.');
     }
   };
 

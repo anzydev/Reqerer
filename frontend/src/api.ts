@@ -172,11 +172,11 @@ export async function shutdownBackend(): Promise<void> {
   }
 }
 
-export async function shutdownPC(): Promise<void> {
+export async function shutdownPC(): Promise<{ status: string; message?: string }> {
   try {
-    await apiFetch('/api/shutdown-pc', { method: 'POST' });
-  } catch {
-    // Network drop is expected when PC shutdown triggers
+    return await apiFetch<{ status: string; message?: string }>('/api/shutdown-pc', { method: 'POST' });
+  } catch (cause) {
+    return { status: 'error', message: cause instanceof Error ? cause.message : 'Shutdown failed' };
   }
 }
 
