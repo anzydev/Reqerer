@@ -1399,27 +1399,79 @@ html, body, #root {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.connection-spinner-glow {
-  position: relative;
-  display: inline-flex;
+/* ── Modern Progress Bar in Loading Overlay ── */
+.connection-connecting-state {
+  padding: 8px 4px;
+}
+
+.progress-top-meta {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 18px;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
-.connection-spinner {
-  width: 42px;
-  height: 42px;
-  border: 3px solid rgba(86, 156, 214, 0.2);
-  border-top-color: #569cd6;
-  border-radius: 50%;
-  animation: spin 900ms linear infinite;
+.progress-status-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #cccccc;
+  letter-spacing: -0.01em;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.progress-percentage {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #569cd6;
 }
 
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: #1e1e1e;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #3c3c3c;
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007acc 0%, #4ec9b0 100%);
+  border-radius: 3px;
+  transition: width 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(86, 156, 214, 0.5);
+}
+
+.progress-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmerMove 1.6s infinite;
+}
+
+@keyframes shimmerMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.progress-subtitle {
+  font-size: 0.8125rem;
+  color: #858585;
+  margin: 0;
+}
+
+/* ── Failed State Typography & Icons ── */
 .connection-error-icon {
   font-size: 2.2rem;
   margin-bottom: 12px;
@@ -1443,48 +1495,6 @@ html, body, #root {
   color: #cccccc;
   line-height: 1.5;
   margin: 0 0 16px 0;
-}
-
-.connection-note {
-  display: inline-block;
-  margin-top: 6px;
-  color: #858585;
-  font-size: 0.78rem;
-}
-
-.connection-target-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #1e1e1e;
-  border: 1px solid #3c3c3c;
-  padding: 6px 14px;
-  border-radius: 4px;
-  font-size: 0.78rem;
-  color: #9cdcfe;
-  margin-top: 6px;
-}
-
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  background: #569cd6;
-  border-radius: 50%;
-  animation: pulseDot 1.4s infinite;
-}
-
-@keyframes pulseDot {
-  0% { transform: scale(0.9); opacity: 0.5; box-shadow: 0 0 0 0 rgba(86, 156, 214, 0.6); }
-  70% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 0 6px rgba(86, 156, 214, 0); }
-  100% { transform: scale(0.9); opacity: 0.5; box-shadow: 0 0 0 0 rgba(86, 156, 214, 0); }
-}
-
-.elapsed-timer {
-  background: #2d2d2d;
-  color: #dcdcaa;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-weight: 600;
 }
 
 /* ── Diagnostic Failure Log Box ── */
