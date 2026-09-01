@@ -28,4 +28,8 @@ def allowed_origins() -> list[str]:
     configured = os.getenv("REQERER_ALLOWED_ORIGINS", "")
     if configured:
         return [origin.strip() for origin in configured.split(",") if origin.strip()]
-    return ["http://localhost:5173", "http://127.0.0.1:5173"]
+    return [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://reqerer.vercel.app",
+    ]
