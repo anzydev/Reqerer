@@ -95,7 +95,16 @@ export interface ProxyStatus {
   history_count: number;
 }
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const DEFAULT_REMOTE_BACKEND = 'https://reqerer-backend.onrender.com';
+
+const API_BASE = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (typeof window !== 'undefined' &&
+   window.location.hostname !== 'localhost' &&
+   window.location.hostname !== '127.0.0.1'
+    ? DEFAULT_REMOTE_BACKEND
+    : '')
+).replace(/\/$/, '');
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE}${path}`;
@@ -115,9 +124,13 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
 
 export async function checkBackendConnection(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(3_000) });
+    const response = await fetch(`${API_BASE}/health`, {
+      signal: AbortSignal.timeout(12_000),
+      cache: 'no-store',
+    });
     return response.ok;
-  } catch {
+  } catch (err) {
+    console.warn('Backend health check warning:', err);
     return false;
   }
 }
