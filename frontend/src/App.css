@@ -711,6 +711,12 @@ html, body, #root {
   margin-top: 6px;
 }
 
+@media (max-width: 768px) {
+  .config-fields-simple {
+    grid-template-columns: 1fr;
+  }
+}
+
 .config-row-simple {
   display: flex;
   flex-direction: column;
@@ -725,6 +731,18 @@ html, body, #root {
   color: #858585;
 }
 
+.req-asterisk {
+  color: #f48771;
+  font-weight: 700;
+}
+
+.config-hint {
+  color: #6a9955;
+  font-size: 0.68rem;
+  text-transform: none;
+  font-weight: 400;
+}
+
 .config-input-wrap {
   display: flex;
   align-items: center;
@@ -733,11 +751,46 @@ html, body, #root {
 
 .config-input-wrap .input-number {
   width: 100%;
-  padding: 4px 8px;
+  padding: 5px 8px;
   font-size: 0.85rem;
   background: #3c3c3c;
   color: #cccccc;
   border: 1px solid #3c3c3c;
+  border-radius: 3px;
+  transition: border-color var(--transition-fast);
+}
+
+.config-input-wrap .input-number:focus {
+  outline: none;
+  border-color: #007acc;
+}
+
+.config-input-wrap .input-number.input-error {
+  border-color: #f48771 !important;
+  background: rgba(244, 135, 113, 0.08);
+}
+
+.config-field-error {
+  color: #f48771;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+/* Hide number input spinners/arrows globally across all browsers */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button,
+input.no-spinner::-webkit-outer-spin-button,
+input.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"],
+input.no-spinner {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .config-suffix {
