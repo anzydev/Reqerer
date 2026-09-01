@@ -112,6 +112,13 @@ export default function App() {
   const resultsBufferRef = useRef<RequestResult[]>([]);
   const rafIdRef = useRef<number | null>(null);
 
+  useEffect(() => {
+    return () => {
+      eventSourceRef.current?.close();
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    };
+  }, []);
+
   const flushResults = useCallback(() => {
     if (resultsBufferRef.current.length > 0) {
       const pending = [...resultsBufferRef.current];
