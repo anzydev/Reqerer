@@ -26,11 +26,11 @@ Accept: application/json
 
 const DEFAULT_CONFIG: TestConfig = {
   start: 1,
-  end: 20,
+  end: 0,
   step: 1,
   delay_ms: 0,
   timeout_ms: 10_000,
-  concurrency: 5,
+  concurrency: 0,
   follow_redirects: true,
   relative_url_scheme: 'http',
 };
@@ -150,6 +150,18 @@ export default function App() {
   const handleRun = async () => {
     if (!backendConnected) {
       alert('Backend is disconnected. Please connect the backend top-right toggle first.');
+      return;
+    }
+
+    if (!config.end || config.end <= 0) {
+      setToastMessage('⚠️ Please enter Total Requests (> 0)');
+      setTimeout(() => setToastMessage(null), 4000);
+      return;
+    }
+
+    if (!config.concurrency || config.concurrency <= 0) {
+      setToastMessage('⚠️ Please enter Concurrency / Threads (> 0)');
+      setTimeout(() => setToastMessage(null), 4000);
       return;
     }
 
@@ -351,8 +363,12 @@ export default function App() {
                     type="button"
                     className="btn btn-primary btn-sm intruder-start-btn"
                     onClick={() => void handleRun()}
-                    disabled={!backendConnected}
-                    title={parseError || 'Start Intruder Run'}
+                    disabled={!backendConnected || !config.end || config.end <= 0 || !config.concurrency || config.concurrency <= 0}
+                    title={
+                      !config.end || config.end <= 0 || !config.concurrency || config.concurrency <= 0
+                        ? 'Enter Total Requests and Threads (> 0)'
+                        : parseError || 'Start Intruder Run'
+                    }
                   >
                     ▶ Start Run
                   </button>
