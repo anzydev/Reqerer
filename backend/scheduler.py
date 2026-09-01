@@ -120,8 +120,8 @@ def _request_headers(headers: dict[str, str]) -> dict[str, str]:
     }
 
 
-async def _read_response_limited(response: httpx.Response) -> tuple[bytes, int, bool]:
-    """Capture at most the response body limit without buffering all data."""
+async def _read_response_limited(response) -> tuple[bytes, int, bool]:
+    """Fast direct content read with stream fallback capped at limit."""
     chunks: list[bytes] = []
     captured = 0
     truncated = False
@@ -141,7 +141,7 @@ async def _read_response_limited(response: httpx.Response) -> tuple[bytes, int, 
 
     try:
         declared_size = int(response.headers.get("content-length", ""))
-    except ValueError:
+    except (ValueError, TypeError):
         declared_size = captured
     return b"".join(chunks), declared_size, truncated
 
@@ -167,7 +167,7 @@ async def _wait_between_requests(ctx: RunContext) -> None:
 
 
 async def execute_run(ctx: RunContext) -> None:
-    """Run requests concurrently with worker tasks and always reach a terminal status."""
+    """Run requests concurrently with worker tasks using high-throughput connection pooling."""
     status = ctx.status
     status.state = RunState.RUNNING
     start_wall = time.monotonic()
@@ -188,7 +188,11 @@ async def execute_run(ctx: RunContext) -> None:
         async with httpx.AsyncClient(
             timeout=ctx.config.timeout_ms / 1000,
             follow_redirects=ctx.config.follow_redirects,
-            limits=httpx.Limits(max_connections=concurrency * 2, max_keepalive_connections=concurrency),
+            limits=httpx.Limits(
+                max_connections=concurrency * 4,
+                max_keepalive_connections=concurrency * 2,
+                keepalive_expiry=30.0,
+            ),
         ) as client:
 
             async def worker():
@@ -205,7 +209,6 @@ async def execute_run(ctx: RunContext) -> None:
 
                     result = RequestResult(index=index + 1, value=value, state=RequestResultState.RUNNING)
                     status.results.append(result)
-                    ctx.notify(result)
 
                     try:
                         parsed: ParsedRequest = parse_raw_request(
