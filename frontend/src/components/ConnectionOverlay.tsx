@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { type DiagnosticLog, getBackendUrl, DEFAULT_REMOTE_BACKEND } from '../api';
 
 interface ConnectionOverlayProps {
@@ -20,21 +20,42 @@ export default function ConnectionOverlay({
   onSaveCustomUrl,
   onResetDefaultUrl,
 }: ConnectionOverlayProps) {
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [progress, setProgress] = useState(0);
   const [customUrlInput, setCustomUrlInput] = useState(getBackendUrl());
   const [showUrlSettings, setShowUrlSettings] = useState(false);
+  const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Timer while connecting
+  // Smooth realistic 0 -> 100 progress simulation during connection
   useEffect(() => {
-    if (!isConnecting) {
-      setElapsedSeconds(0);
-      return;
+    if (isConnecting) {
+      setProgress(5);
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+
+      progressTimerRef.current = setInterval(() => {
+        setProgress((prev) => {
+          if (prev < 25) {
+            return prev + Math.floor(Math.random() * 4 + 2); // 0-25% fast
+          } else if (prev < 65) {
+            return prev + Math.floor(Math.random() * 3 + 1); // 25-65% steady
+          } else if (prev < 88) {
+            return prev + 1; // 65-88% gradual
+          } else if (prev < 96) {
+            return Math.min(96, prev + 0.4); // 88-96% easing while waiting
+          }
+          return prev;
+        });
+      }, 350);
+    } else if (connected) {
+      setProgress(100);
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+    } else {
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
     }
-    const timer = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isConnecting]);
+
+    return () => {
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+    };
+  }, [isConnecting, connected]);
 
   // Sync customUrl input whenever backend url changes
   useEffect(() => {
@@ -42,10 +63,18 @@ export default function ConnectionOverlay({
   }, [isConnecting, log]);
 
   // If connected, don't render overlay
-  if (connected) return null;
+  if (connected && progress >= 100) return null;
 
   const currentBackend = getBackendUrl();
-  const isCloudRender = currentBackend.includes('onrender.com');
+  const displayProgress = Math.min(100, Math.floor(progress));
+
+  const getStatusText = () => {
+    if (displayProgress < 25) return 'Initializing application workspace…';
+    if (displayProgress < 55) return 'Connecting to backend service…';
+    if (displayProgress < 85) return 'Warming up request runner engine…';
+    if (displayProgress < 100) return 'Finalizing handshake…';
+    return 'Ready!';
+  };
 
   const handleApplyCustomUrl = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,31 +93,24 @@ export default function ConnectionOverlay({
       <div className="connection-overlay-card">
         {isConnecting ? (
           <div className="connection-connecting-state">
-            <div className="connection-spinner-glow">
-              <div className="connection-spinner" />
+            <div className="progress-top-meta">
+              <span className="progress-status-label">{getStatusText()}</span>
+              <span className="progress-percentage font-mono">{displayProgress}%</span>
             </div>
 
-            <h2 className="connection-title">Connecting to Backend…</h2>
+            {/* ── Modern Progress Bar ── */}
+            <div className="progress-track">
+              <div
+                className="progress-fill"
+                style={{ width: `${displayProgress}%` }}
+              >
+                <div className="progress-shimmer" />
+              </div>
+            </div>
 
-            <p className="connection-subtitle">
-              {isCloudRender ? (
-                <>
-                  Waking up server on Render Cloud.
-                  <br />
-                  <span className="connection-note">
-                    Render free-tier instances sleep when idle. Initial wake-up takes ~15–25 seconds.
-                  </span>
-                </>
-              ) : (
-                <>Verifying connection to {currentBackend}…</>
-              )}
+            <p className="connection-subtitle progress-subtitle">
+              Setting up your environment and testing suite
             </p>
-
-            <div className="connection-target-badge font-mono">
-              <span className="badge-dot pulse-dot" />
-              <span>Target: {currentBackend}/health</span>
-              <span className="elapsed-timer">{elapsedSeconds}s</span>
-            </div>
           </div>
         ) : (
           <div className="connection-failed-state">
@@ -107,7 +129,7 @@ export default function ConnectionOverlay({
               <div className="log-box-body font-mono">
                 <div className="log-line">
                   <span className="log-key">Endpoint:</span>{' '}
-                  <span className="log-val">{log?.targetUrl || `${currentBackend}/health`}</span>
+                  <span className="log-val">{log?.targetUrl || `${currentBackend || 'api'}/health`}</span>
                 </div>
                 <div className="log-line">
                   <span className="log-key">Status:</span>{' '}
