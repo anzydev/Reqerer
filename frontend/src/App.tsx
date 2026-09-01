@@ -4,7 +4,7 @@ import ConfigPanel from './components/ConfigPanel';
 import ResultsTable from './components/ResultsTable';
 import BackendToggle from './components/BackendToggle';
 import InterceptView from './components/InterceptView';
-import { ShutdownPCButton, KillAppSlider } from './components/SystemControls';
+import { KillAppSlider } from './components/SystemControls';
 import {
   parseRequest,
   startRun,
@@ -296,17 +296,13 @@ export default function App() {
               </div>
             </div>
 
-            <div className="editor-container">
+            <div className="left-panel-body">
               <RequestEditor
                 value={rawRequest}
                 onChange={setRawRequest}
                 theme="dark"
                 error={parseError}
               />
-            </div>
-
-            <div className="bottom-left-bar">
-              <ShutdownPCButton />
             </div>
           </section>
 

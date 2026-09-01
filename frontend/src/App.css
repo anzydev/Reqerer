@@ -246,15 +246,6 @@ html, body, #root {
   border-top: 1px solid #f48771;
 }
 
-.bottom-left-bar {
-  padding: 10px 14px;
-  background: #252526;
-  border-top: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-shrink: 0;
-}
 
 /* ── RIGHT PANEL (Controls & Logs) ───────────────────────────────────────── */
 .right-panel {
@@ -1323,24 +1314,6 @@ html, body, #root {
 }
 
 /* ── System Control Elements ─────────────────────────────────────────────── */
-.shutdown-pc-btn {
-  background: #e51400;
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 6px 14px;
-  font-weight: 700;
-  font-size: 0.8125rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.shutdown-pc-btn:hover {
-  background: #f42512;
-}
 
 .kill-app-slider-container {
   display: flex;

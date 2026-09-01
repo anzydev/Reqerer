@@ -172,14 +172,6 @@ export async function shutdownBackend(): Promise<void> {
   }
 }
 
-export async function shutdownPC(): Promise<{ status: string; message?: string }> {
-  try {
-    return await apiFetch<{ status: string; message?: string }>('/api/shutdown-pc', { method: 'POST' });
-  } catch (cause) {
-    return { status: 'error', message: cause instanceof Error ? cause.message : 'Shutdown failed' };
-  }
-}
-
 export function createEventSource(runId: string): EventSource {
   return new EventSource(`${API_BASE}/api/run/${runId}/stream`);
 }

@@ -1,89 +1,9 @@
 import { useEffect, useState } from 'react';
-import { killAllRuns, shutdownBackend, shutdownPC } from '../api';
+import { killAllRuns, shutdownBackend } from '../api';
 
 interface KillControlProps {
   backendConnected: boolean;
   onBackendStopped: () => void;
-}
-
-export function ShutdownPCButton() {
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [stage, setStage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleShutdownClick = async () => {
-    setError(null);
-    try {
-      setStage('Stopping active tests…');
-      await killAllRuns().catch(() => {});
-      setStage('Triggering shutdown…');
-      const res = await shutdownPC();
-      if (res.status === 'cloud_or_restricted') {
-        setStage(res.message || 'All test runs stopped.');
-      } else if (res.status === 'pc_shutting_down') {
-        setStage('OS Shutdown command sent! Shutting down computer…');
-      } else {
-        setStage(res.message || 'All tests stopped.');
-      }
-    } catch {
-      setStage('All active test runs stopped.');
-    }
-  };
-
-  return (
-    <>
-      <button
-        type="button"
-        id="shutdown-pc-btn"
-        className="system-btn shutdown-pc-btn"
-        onClick={() => setShowConfirm(true)}
-        title="Power off this computer (macOS / Windows)"
-      >
-        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M8 0a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 8 0Z"/>
-          <path d="M3.243 3.243a.75.75 0 0 1 1.06 1.06 6 6 0 1 0 7.394 0 .75.75 0 1 1 1.06-1.06 7.5 7.5 0 1 1-9.514 0Z"/>
-        </svg>
-        <span>SHUTDOWN PC</span>
-      </button>
-
-      {showConfirm && (
-        <div className="modal-backdrop" onClick={() => !stage && setShowConfirm(false)}>
-          <div className="modal system-modal" onClick={(event) => event.stopPropagation()}>
-            <div className="system-modal-icon warning">⚠</div>
-            <h3 className="modal-title">Shutdown Computer?</h3>
-            <p className="system-modal-desc">
-              This main switch will stop all running HTTP tests, shut down the backend, and power off your operating system (macOS / Windows).
-            </p>
-            {stage && (
-              <div className="process-progress-box">
-                <span className="spinner spinner-sm" style={{ marginRight: 6 }} />
-                {stage}
-              </div>
-            )}
-            {error && <div className="detail-error">{error}</div>}
-            <div className="modal-actions">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setShowConfirm(false)}
-                disabled={!!stage}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger btn-lg"
-                onClick={() => void handleShutdownClick()}
-                disabled={!!stage}
-              >
-                {stage ? 'Shutting Down…' : 'Yes, Power Off PC'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
 }
 
 export function KillAppSlider({ backendConnected, onBackendStopped }: KillControlProps) {
