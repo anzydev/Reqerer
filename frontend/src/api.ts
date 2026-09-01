@@ -103,8 +103,10 @@ export function getBackendUrl(): string {
     if (custom && custom.trim()) {
       return custom.trim().replace(/\/$/, '');
     }
+    // When deployed on Vercel, relative paths are proxied via vercel.json rewrites
+    // This provides 100% same-origin reliability without browser CORS blocking.
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      return (import.meta.env.VITE_API_BASE_URL || DEFAULT_REMOTE_BACKEND).replace(/\/$/, '');
+      return '';
     }
   }
   return (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -132,32 +134,52 @@ export interface DiagnosticLog {
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const base = getBackendUrl();
   const url = `${base}${path}`;
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    let message = `API request failed: ${response.status} ${response.statusText}`;
-    try {
-      const errorData = await response.json();
-      if (errorData.detail) message = errorData.detail;
-    } catch {
-      // Fall back to HTTP status message
+  try {
+    const response = await fetch(url, {
+      ...options,
+      credentials: 'omit',
+    });
+    if (!response.ok) {
+      let message = `API request failed: ${response.status} ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.detail) message = errorData.detail;
+      } catch {
+        // Fall back to HTTP status message
+      }
+      throw new Error(message);
     }
-    throw new Error(message);
+    return response.json() as Promise<T>;
+  } catch (err) {
+    // If relative proxy failed and no custom URL was configured, retry once directly to Render
+    if (!base && typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      const fallbackUrl = `${DEFAULT_REMOTE_BACKEND}${path}`;
+      const response = await fetch(fallbackUrl, {
+        ...options,
+        credentials: 'omit',
+      });
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+      return response.json() as Promise<T>;
+    }
+    throw err;
   }
-  return response.json() as Promise<T>;
 }
 
 export async function checkBackendConnectionDetailed(
   timeoutMs = 45_000
 ): Promise<{ success: boolean; log: DiagnosticLog }> {
-  const target = `${getBackendUrl()}/health`;
+  const base = getBackendUrl();
+  const target = `${base}/health`;
   const startTime = performance.now();
   const timestamp = new Date().toLocaleTimeString();
 
+  // Try configured / proxy endpoint first
   try {
-    const response = await fetch(target, {
+    const response = await fetch(target || '/health', {
       signal: AbortSignal.timeout(timeoutMs),
-      cache: 'no-store',
-      mode: 'cors',
+      credentials: 'omit',
     });
     const durationMs = Math.round(performance.now() - startTime);
 
@@ -166,7 +188,7 @@ export async function checkBackendConnectionDetailed(
         success: true,
         log: {
           timestamp,
-          targetUrl: target,
+          targetUrl: target || `${window.location.origin}/health`,
           success: true,
           durationMs,
           statusCode: response.status,
@@ -178,28 +200,54 @@ export async function checkBackendConnectionDetailed(
       success: false,
       log: {
         timestamp,
-        targetUrl: target,
+        targetUrl: target || `${window.location.origin}/health`,
         success: false,
         durationMs,
         statusCode: response.status,
-        errorDetail: `HTTP Error ${response.status}: ${response.statusText}`,
+        errorDetail: `HTTP ${response.status}: ${response.statusText}`,
       },
     };
-  } catch (err: unknown) {
+  } catch (primaryErr: unknown) {
+    // If on remote web without custom URL and primary relative check failed, try direct Render backend
+    if (!base && typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      try {
+        const directTarget = `${DEFAULT_REMOTE_BACKEND}/health`;
+        const directResp = await fetch(directTarget, {
+          signal: AbortSignal.timeout(timeoutMs),
+          credentials: 'omit',
+        });
+        const durationMs = Math.round(performance.now() - startTime);
+        if (directResp.ok) {
+          return {
+            success: true,
+            log: {
+              timestamp,
+              targetUrl: directTarget,
+              success: true,
+              durationMs,
+              statusCode: directResp.status,
+            },
+          };
+        }
+      } catch {
+        // Fall through to primary error reporting
+      }
+    }
+
     const durationMs = Math.round(performance.now() - startTime);
-    const errorMsg = err instanceof Error ? err.message : String(err);
+    const errorMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
     const isTimeout = errorMsg.toLowerCase().includes('aborted') || errorMsg.toLowerCase().includes('timeout');
 
     return {
       success: false,
       log: {
         timestamp,
-        targetUrl: target,
+        targetUrl: target || (typeof window !== 'undefined' ? `${window.location.origin}/health` : '/health'),
         success: false,
         durationMs,
         errorDetail: isTimeout
-          ? `Connection timed out after ${(timeoutMs / 1000).toFixed(0)}s (Server may be booting up)`
-          : `Network request failed: ${errorMsg}`,
+          ? `Connection timed out after ${(timeoutMs / 1000).toFixed(0)}s (Server may be cold booting)`
+          : `Network error: ${errorMsg}`,
       },
     };
   }
