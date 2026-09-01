@@ -274,15 +274,6 @@ html, body, #root {
   background: var(--bg-primary);
 }
 
-.bottom-right-bar {
-  padding: 10px 14px;
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-shrink: 0;
-}
 
 /* ── INTERCEPT VIEW (Spacious Full-Width Layout) ─────────────────────────── */
 .intercept-view-grid {
@@ -1313,75 +1304,6 @@ html, body, #root {
   padding: 8px 0;
 }
 
-/* ── System Control Elements ─────────────────────────────────────────────── */
-
-.kill-app-slider-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.kill-app-info {
-  display: flex;
-  align-items: center;
-}
-
-.kill-app-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #858585;
-  white-space: nowrap;
-}
-
-.kill-app-stage {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #ce9178;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.slider-wrapper {
-  position: relative;
-  width: 150px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-}
-
-.kill-slider {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: #3c3c3c;
-  outline: none;
-  appearance: none;
-  cursor: pointer;
-  position: relative;
-  z-index: 2;
-}
-
-.kill-slider::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #f48771;
-  cursor: pointer;
-  box-shadow: 0 0 6px rgba(244, 135, 113, 0.6);
-}
-
-.slider-track-fill {
-  position: absolute;
-  left: 0;
-  height: 6px;
-  background: #f48771;
-  border-radius: 3px;
-  pointer-events: none;
-  z-index: 1;
-}
 
 /* ── Toast ───────────────────────────────────────────────────────────────── */
 .toast-container {

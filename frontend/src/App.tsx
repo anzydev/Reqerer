@@ -4,7 +4,6 @@ import ConfigPanel from './components/ConfigPanel';
 import ResultsTable from './components/ResultsTable';
 import BackendToggle from './components/BackendToggle';
 import InterceptView from './components/InterceptView';
-import { KillAppSlider } from './components/SystemControls';
 import {
   parseRequest,
   startRun,
@@ -194,13 +193,6 @@ export default function App() {
     setBackendConnected((prev) => (prev === connected ? prev : connected));
   }, []);
 
-  const handleBackendStopped = () => {
-    eventSourceRef.current?.close();
-    setIsRunning(false);
-    setStopping(false);
-    setBackendConnected(false);
-  };
-
   const handleSendToIntruder = (rawToUse: string) => {
     setRawRequest(rawToUse);
     setActiveTab('intruder');
@@ -336,13 +328,6 @@ export default function App() {
                 onClear={handleClearIntruderLogs}
                 disableLogs={disableLogs}
                 onToggleDisableLogs={() => setDisableLogs((prev) => !prev)}
-              />
-            </div>
-
-            <div className="bottom-right-bar">
-              <KillAppSlider
-                backendConnected={backendConnected}
-                onBackendStopped={handleBackendStopped}
               />
             </div>
           </section>
