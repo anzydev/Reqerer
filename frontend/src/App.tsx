@@ -4,11 +4,15 @@ import ConfigPanel from './components/ConfigPanel';
 import ResultsTable from './components/ResultsTable';
 import BackendToggle from './components/BackendToggle';
 import InterceptView from './components/InterceptView';
+import ConnectionOverlay from './components/ConnectionOverlay';
 import {
   parseRequest,
   startRun,
   stopRun,
   createEventSource,
+  checkBackendConnectionDetailed,
+  setCustomBackendUrl,
+  type DiagnosticLog,
   type RequestResult,
   type RunStatus,
   type TestConfig,
@@ -36,7 +40,10 @@ export default function App() {
   const [rawRequest, setRawRequest] = useState(DEFAULT_REQUEST);
   const [config, setConfig] = useState<TestConfig>(DEFAULT_CONFIG);
   const [parseError, setParseError] = useState<string | null>(null);
-  const [backendConnected, setBackendConnected] = useState(true);
+  const [backendConnected, setBackendConnected] = useState(false);
+  const [isInitialConnecting, setIsInitialConnecting] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(true);
+  const [diagnosticLog, setDiagnosticLog] = useState<DiagnosticLog | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [stopping, setStopping] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
@@ -189,8 +196,60 @@ export default function App() {
     }
   };
 
+  const performInitialConnect = useCallback(async () => {
+    setIsInitialConnecting(true);
+    setShowOverlay(true);
+    const result = await checkBackendConnectionDetailed(45_000);
+    setDiagnosticLog(result.log);
+    setIsInitialConnecting(false);
+
+    if (result.success) {
+      setBackendConnected(true);
+      setShowOverlay(false);
+      setToastMessage('✓ Backend connected successfully');
+      setTimeout(() => setToastMessage(null), 3000);
+    } else {
+      setBackendConnected(false);
+      setShowOverlay(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    void performInitialConnect();
+  }, [performInitialConnect]);
+
+  const handleRetryInitialConnect = () => {
+    void performInitialConnect();
+  };
+
+  const handleDismissOverlay = () => {
+    setShowOverlay(false);
+    setToastMessage('ℹ️ Running in Offline Mode. Backend is disconnected.');
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const handleSaveCustomBackendUrl = (url: string) => {
+    setCustomBackendUrl(url);
+    setToastMessage(`✓ Backend URL set to ${url}`);
+    setTimeout(() => setToastMessage(null), 3000);
+    void performInitialConnect();
+  };
+
+  const handleResetDefaultBackendUrl = () => {
+    setCustomBackendUrl(null);
+    setToastMessage('✓ Reset to default cloud backend');
+    setTimeout(() => setToastMessage(null), 3000);
+    void performInitialConnect();
+  };
+
   const handleBackendToggle = useCallback((connected: boolean) => {
-    setBackendConnected((prev) => (prev === connected ? prev : connected));
+    setBackendConnected((prev) => {
+      if (prev === connected) return prev;
+      if (!connected) {
+        setShowOverlay(false);
+      }
+      return connected;
+    });
   }, []);
 
   const handleSendToIntruder = (rawToUse: string) => {
@@ -209,6 +268,19 @@ export default function App() {
 
   return (
     <div className="main-app-shell">
+      {/* ── Initial Connection & Diagnostics Glassmorphic Overlay ── */}
+      {showOverlay && (
+        <ConnectionOverlay
+          isConnecting={isInitialConnecting}
+          connected={backendConnected}
+          log={diagnosticLog}
+          onRetry={handleRetryInitialConnect}
+          onDismiss={handleDismissOverlay}
+          onSaveCustomUrl={handleSaveCustomBackendUrl}
+          onResetDefaultUrl={handleResetDefaultBackendUrl}
+        />
+      )}
+
       {/* ── Top Navigation Bar ── */}
       <header className="app-top-nav">
         <div className="nav-brand">
