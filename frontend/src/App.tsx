@@ -109,22 +109,43 @@ export default function App() {
     };
   }, [rawRequest, backendConnected]);
 
-  useEffect(() => () => eventSourceRef.current?.close(), []);
+  const resultsBufferRef = useRef<RequestResult[]>([]);
+  const rafIdRef = useRef<number | null>(null);
+
+  const flushResults = useCallback(() => {
+    if (resultsBufferRef.current.length > 0) {
+      const pending = [...resultsBufferRef.current];
+      resultsBufferRef.current = [];
+      setResults((current) => {
+        const next = [...current];
+        for (const res of pending) {
+          const idx = next.findIndex((item) => item.index === res.index);
+          if (idx < 0) {
+            next.push(res);
+          } else {
+            next[idx] = res;
+          }
+        }
+        return next;
+      });
+    }
+    rafIdRef.current = null;
+  }, []);
 
   const connectSSE = useCallback((id: string) => {
     eventSourceRef.current?.close();
+    resultsBufferRef.current = [];
+    if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+
     const eventSource = createEventSource(id);
 
     eventSource.addEventListener('result', (event: MessageEvent) => {
       if (disableLogsRef.current) return;
       const result: RequestResult = JSON.parse(event.data);
-      setResults((current) => {
-        const existingIndex = current.findIndex((item) => item.index === result.index);
-        if (existingIndex < 0) return [...current, result];
-        const next = [...current];
-        next[existingIndex] = result;
-        return next;
-      });
+      resultsBufferRef.current.push(result);
+      if (!rafIdRef.current) {
+        rafIdRef.current = requestAnimationFrame(flushResults);
+      }
     });
 
     eventSource.addEventListener('progress', (event: MessageEvent) => {
@@ -132,6 +153,8 @@ export default function App() {
     });
 
     eventSource.addEventListener('done', (event: MessageEvent) => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      flushResults();
       setRunStatus(JSON.parse(event.data) as RunStatus);
       setIsRunning(false);
       setStopping(false);
@@ -139,13 +162,15 @@ export default function App() {
     });
 
     eventSource.onerror = () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      flushResults();
       eventSource.close();
       setIsRunning(false);
       setStopping(false);
     };
 
     eventSourceRef.current = eventSource;
-  }, []);
+  }, [flushResults]);
 
   const handleRun = async () => {
     if (!backendConnected) {
