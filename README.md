@@ -2,9 +2,6 @@
 
 A fast, browser-based HTTP request testing and benchmarking platform. Write raw HTTP requests, inject dynamic payload values, and stream concurrent attack runs in real time.
 
-**Live Application**: [https://reqerer.vercel.app](https://reqerer.vercel.app)  
-**Cloud Backend**: [https://reqerer-backend.onrender.com](https://reqerer-backend.onrender.com)
-
 ---
 
 ## Key Features
@@ -14,18 +11,13 @@ A fast, browser-based HTTP request testing and benchmarking platform. Write raw 
 - **Concurrent Worker Pool**: Execute attacks across 1–100 threads with custom delays (ms) and timeout limits.
 - **Live Streamed Results**: Stream response status, latency, headers, and formatted JSON bodies via Server-Sent Events (SSE).
 - **Mute Logs Mode**: Suppress individual log rendering during large-scale benchmarks to maximize browser performance.
-- **Cloud & Local Hybrid**: Runs out-of-the-box on Vercel with Render backend, or completely offline on `localhost`.
+- **Cloud & Local Support**: Runs directly in the browser with auto-connect to the cloud API, or fully offline on `localhost`.
 
 ---
 
-## Getting Started
+## Local Development
 
-### Option 1: Use the Web App
-Open [https://reqerer.vercel.app](https://reqerer.vercel.app) in your browser. The app connects automatically to the cloud backend.
-
-### Option 2: Run Locally
-
-Clone the repository and start both frontend and backend with a single command:
+Start both frontend and backend with a single command:
 
 ```bash
 ./start.sh
@@ -35,7 +27,7 @@ Clone the repository and start both frontend and backend with a single command:
 - **Backend API**: `http://127.0.0.1:8001`
 - **Proxy Port**: `127.0.0.1:8082`
 
-#### Running Components Separately
+### Running Separately
 
 **Backend (FastAPI)**:
 ```bash
@@ -63,7 +55,7 @@ npm run dev
    {"id": "$1$", "name": "Item"}
    ```
 2. **Configure Attack**:
-   - **Total Requests**: Number of total requests to fire (`> 0`).
+   - **Total Requests**: Total number of requests to fire (`> 0`).
    - **Concurrency (Threads)**: Number of parallel workers (`1–100`).
    - **Delay (ms)**: Pause duration between requests (`>= 0`).
 3. **Run & Inspect**: Click **▶ Start Run**. Results stream live into the results table with expandable request/response inspection.
