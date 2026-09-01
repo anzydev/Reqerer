@@ -288,7 +288,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="left-panel-body">
+            <div className="editor-container">
               <RequestEditor
                 value={rawRequest}
                 onChange={setRawRequest}

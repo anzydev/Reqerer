@@ -104,6 +104,7 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   border-right: 1px solid var(--border-subtle);
   background: var(--bg-primary);
   box-sizing: border-box;
@@ -130,6 +131,7 @@ html, body, #root {
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
   background: #1e1e1e;
@@ -252,6 +254,7 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   background: var(--bg-secondary);
   box-sizing: border-box;
   overflow: hidden;
@@ -268,6 +271,7 @@ html, body, #root {
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100%;
   min-height: 0;
   padding: 10px 14px;
   overflow: hidden;
@@ -1090,9 +1094,31 @@ html, body, #root {
 
 .results-log-list {
   flex: 1;
-  overflow-y: auto;
-  padding: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  height: 100%;
   min-height: 0;
+  padding: 0;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #424242 #1e1e1e;
+}
+
+.results-log-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.results-log-list::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.results-log-list::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 4px;
+}
+
+.results-log-list::-webkit-scrollbar-thumb:hover {
+  background: #555555;
 }
 
 .empty-log-state {
