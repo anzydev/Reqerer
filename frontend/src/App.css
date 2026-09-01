@@ -1,9 +1,10 @@
 /* ── VS Code Dark+ Layout & Shell ────────────────────────────────────────── */
 html, body, #root {
-  height: 100vh;
+  min-height: 100vh;
+  height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -14,6 +15,7 @@ html, body, #root {
   flex-direction: column;
   height: 100vh;
   width: 100vw;
+  max-width: 100%;
   overflow: hidden;
 }
 
@@ -87,8 +89,9 @@ html, body, #root {
   display: grid;
   grid-template-columns: 50% 50%;
   flex: 1;
-  width: 100vw;
+  width: 100%;
   height: calc(100vh - 38px);
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -205,7 +208,7 @@ html, body, #root {
 }
 
 .request-editor-cm {
-  flex: 1;
+  flex: 1 1 auto;
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -215,20 +218,20 @@ html, body, #root {
 }
 
 .request-editor-cm .cm-editor {
-  flex: 1;
+  flex: 1 1 auto !important;
   height: 100% !important;
   min-height: 0 !important;
-  max-height: 100% !important;
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
 }
 
 .request-editor-cm .cm-scroller {
-  flex: 1;
+  flex: 1 1 auto !important;
   height: 100% !important;
   min-height: 0 !important;
   overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 .request-editor-cm.has-error {
@@ -265,6 +268,9 @@ html, body, #root {
   flex-shrink: 0;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-subtle);
+  max-height: 48vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .lower-right-logs {
