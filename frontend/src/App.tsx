@@ -186,19 +186,19 @@ export default function App() {
     }
 
     if (!config.end || config.end <= 0) {
-      setToastMessage('⚠️ Please enter Total Requests (> 0)');
+      setToastMessage('Please enter Total Requests (> 0)');
       setTimeout(() => setToastMessage(null), 4000);
       return;
     }
 
     if (!config.concurrency || config.concurrency <= 0) {
-      setToastMessage('⚠️ Please enter Concurrency / Threads (> 0)');
+      setToastMessage('Please enter Concurrency / Threads (> 0)');
       setTimeout(() => setToastMessage(null), 4000);
       return;
     }
 
     if (parseError) {
-      setToastMessage(`⚠️ ${parseError}`);
+      setToastMessage(parseError);
       setTimeout(() => setToastMessage(null), 4000);
       return;
     }
@@ -220,11 +220,11 @@ export default function App() {
         cancelled: 0,
       });
       connectSSE(run_id);
-    } catch (cause) {
+    } catch (err: unknown) {
       setIsRunning(false);
-      const errMsg = cause instanceof Error ? cause.message : 'Failed to start test.';
+      const errMsg = err instanceof Error ? err.message : 'Unknown execution failure';
       setParseError(errMsg);
-      setToastMessage(`⚠️ ${errMsg}`);
+      setToastMessage(errMsg);
       setTimeout(() => setToastMessage(null), 4000);
     }
   };
@@ -250,7 +250,7 @@ export default function App() {
     if (result.success) {
       setBackendConnected(true);
       setShowOverlay(false);
-      setToastMessage('✓ Backend connected successfully');
+      setToastMessage('Backend connected successfully');
       setTimeout(() => setToastMessage(null), 3000);
     } else {
       setBackendConnected(false);
@@ -268,20 +268,20 @@ export default function App() {
 
   const handleDismissOverlay = () => {
     setShowOverlay(false);
-    setToastMessage('ℹ️ Running in Offline Mode. Backend is disconnected.');
+    setToastMessage('Running in offline mode. Backend is disconnected.');
     setTimeout(() => setToastMessage(null), 4000);
   };
 
   const handleSaveCustomBackendUrl = (url: string) => {
     setCustomBackendUrl(url);
-    setToastMessage(`✓ Backend URL set to ${url}`);
+    setToastMessage(`Backend URL set to ${url}`);
     setTimeout(() => setToastMessage(null), 3000);
     void performInitialConnect();
   };
 
   const handleResetDefaultBackendUrl = () => {
     setCustomBackendUrl(null);
-    setToastMessage('✓ Reset to default cloud backend');
+    setToastMessage('Reset to default cloud backend');
     setTimeout(() => setToastMessage(null), 3000);
     void performInitialConnect();
   };
@@ -327,9 +327,7 @@ export default function App() {
 
       {/* ── Top Navigation Bar ── */}
       <header className="app-top-nav">
-        <div className="nav-brand">
-          <span className="brand-logo">Reqerer</span>
-        </div>
+        <div className="nav-left-spacer" />
 
         <nav className="nav-tabs">
           <button
@@ -376,44 +374,24 @@ export default function App() {
             gridTemplateColumns: `${intruderSplit}% 6px calc(${100 - intruderSplit}% - 6px)`,
           }}
         >
-          {/* ── LEFT HALF: Request Editor & Shutdown PC Button ── */}
+          {/* ── LEFT HALF: Request Editor ── */}
           <section className="left-panel">
-            <div className="panel-header">
-              <span className="card-title">HTTP Request Editor</span>
-              <div className="panel-header-actions">
-                {isRunning ? (
-                  <button
-                    type="button"
-                    className="btn btn-danger btn-sm"
-                    onClick={() => void handleStop()}
-                    disabled={stopping}
-                  >
-                    ■ {stopping ? 'Stopping…' : 'Stop Run'}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-sm intruder-start-btn"
-                    onClick={() => void handleRun()}
-                    disabled={!backendConnected || !config.end || config.end <= 0 || !config.concurrency || config.concurrency <= 0}
-                    title={
-                      !config.end || config.end <= 0 || !config.concurrency || config.concurrency <= 0
-                        ? 'Enter Total Requests and Threads (> 0)'
-                        : parseError || 'Start Intruder Run'
-                    }
-                  >
-                    ▶ Start Run
-                  </button>
-                )}
-              </div>
-            </div>
-
             <div className="editor-container">
               <RequestEditor
                 value={rawRequest}
                 onChange={setRawRequest}
                 theme="dark"
                 error={parseError}
+                onRun={() => void handleRun()}
+                onStop={() => void handleStop()}
+                isRunning={isRunning}
+                stopping={stopping}
+                runDisabled={!backendConnected || !config.end || config.end <= 0 || !config.concurrency || config.concurrency <= 0}
+                runTitle={
+                  !config.end || config.end <= 0 || !config.concurrency || config.concurrency <= 0
+                    ? 'Enter Total Requests and Threads (> 0)'
+                    : parseError || 'Start Intruder Run'
+                }
               />
             </div>
           </section>
