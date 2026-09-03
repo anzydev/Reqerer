@@ -104,14 +104,14 @@ export function classifyRequest(item: ProxyHistoryItem): Exclude<CategoryKey, 'a
   return 'api';
 }
 
-const CATEGORY_LABELS: Record<CategoryKey, { label: string; icon: string; color: string }> = {
-  all: { label: 'All', icon: '🌐', color: '#9cdcfe' },
-  api: { label: 'API / Fetch', icon: '⚡', color: '#569cd6' },
-  js: { label: 'JS / Scripts', icon: '📜', color: '#dcdcaa' },
-  css: { label: 'CSS / Styles', icon: '🎨', color: '#c586c0' },
-  media: { label: 'Media / Img', icon: '🖼️', color: '#4ec9b0' },
-  doc: { label: 'Doc / HTML', icon: '📄', color: '#ce9178' },
-  tunnel: { label: 'Tunnels (CONNECT)', icon: '🔒', color: '#858585' },
+const CATEGORY_LABELS: Record<CategoryKey, { label: string; color: string }> = {
+  all: { label: 'All', color: '#9cdcfe' },
+  api: { label: 'API / Fetch', color: '#569cd6' },
+  js: { label: 'JS / Scripts', color: '#dcdcaa' },
+  css: { label: 'CSS / Styles', color: '#c586c0' },
+  media: { label: 'Media / Img', color: '#4ec9b0' },
+  doc: { label: 'Doc / HTML', color: '#ce9178' },
+  tunnel: { label: 'Tunnels (CONNECT)', color: '#858585' },
 };
 
 export default function ProxyHistoryTable({
@@ -300,7 +300,6 @@ export default function ProxyHistoryTable({
                 color: isActive ? '#ffffff' : undefined,
               }}
             >
-              <span className="cat-icon">{cat.icon}</span>
               <span className="cat-name">{cat.label}</span>
               <span className="cat-badge">{count}</span>
             </button>
