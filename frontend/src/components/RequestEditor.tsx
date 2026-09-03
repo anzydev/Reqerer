@@ -10,6 +10,12 @@ interface RequestEditorProps {
   onChange: (value: string) => void;
   theme: 'dark' | 'light';
   error?: string | null;
+  onRun?: () => void;
+  onStop?: () => void;
+  isRunning?: boolean;
+  stopping?: boolean;
+  runDisabled?: boolean;
+  runTitle?: string;
 }
 
 // ── CodeMirror Syntax Highlighting Plugin ────────────────────────────────────
@@ -252,11 +258,21 @@ const httpThemeDark = CM.theme({
     fontWeight: 'bold',
     borderRadius: '2px',
     padding: '0 3px',
-    boxShadow: '0 0 4px rgba(220, 220, 170, 0.4)',
   },
 }, { dark: true });
 
-export default function RequestEditor({ value, onChange, theme, error }: RequestEditorProps) {
+export default function RequestEditor({
+  value,
+  onChange,
+  theme,
+  error,
+  onRun,
+  onStop,
+  isRunning,
+  stopping,
+  runDisabled,
+  runTitle,
+}: RequestEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
@@ -445,6 +461,31 @@ export default function RequestEditor({ value, onChange, theme, error }: Request
         >
           Pretty
         </button>
+
+        {onRun && (
+          <div className="toolbar-run-actions" style={{ marginLeft: 'auto' }}>
+            {isRunning ? (
+              <button
+                type="button"
+                className="btn btn-danger btn-sm"
+                onClick={onStop}
+                disabled={stopping}
+              >
+                {stopping ? 'Stopping…' : 'Stop Run'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm intruder-start-btn"
+                onClick={onRun}
+                disabled={runDisabled}
+                title={runTitle}
+              >
+                Start Run
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div
@@ -455,7 +496,7 @@ export default function RequestEditor({ value, onChange, theme, error }: Request
       {error && (
         <div className="editor-error">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/>
+            <path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />
           </svg>
           {error}
         </div>
