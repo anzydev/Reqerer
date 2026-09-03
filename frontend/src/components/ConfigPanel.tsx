@@ -156,7 +156,7 @@ export default function ConfigPanel({
               onClick={onStop}
               disabled={stopping}
             >
-              ■ {stopping ? 'Stopping Intruder…' : 'Stop Intruder Run'}
+              {stopping ? 'Stopping Intruder…' : 'Stop Intruder Run'}
             </button>
           ) : (
             <button
@@ -165,7 +165,7 @@ export default function ConfigPanel({
               onClick={onRun}
               disabled={disabled || !isFormValid}
             >
-              ▶ Start Intruder Run
+              Start Intruder Run
             </button>
           )}
         </div>
