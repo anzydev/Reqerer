@@ -45,9 +45,9 @@ export default function ResultsTable({
           {status && (
             <div className="results-stats-mini">
               <span className="stat-pill total">{status.completed} / {status.total} reqs</span>
-              <span className="stat-pill success">↔ {status.successful} responses</span>
-              {status.failed > 0 && <span className="stat-pill fail">✗ {status.failed}</span>}
-              {status.cancelled > 0 && <span className="stat-pill timing">■ {status.cancelled} cancelled</span>}
+              <span className="stat-pill success">{status.successful} successful</span>
+              {status.failed > 0 && <span className="stat-pill fail">{status.failed} failed</span>}
+              {status.cancelled > 0 && <span className="stat-pill timing">{status.cancelled} cancelled</span>}
               {status.avg_response_time_ms != null && (
                 <span className="stat-pill timing">avg {Math.round(status.avg_response_time_ms)}ms</span>
               )}
@@ -68,7 +68,7 @@ export default function ResultsTable({
                   : 'Disable/mute individual request logs for high-speed benchmarking.'
               }
             >
-              {disableLogs ? '🔇 Logs Muted' : '📝 Logs On'}
+              {disableLogs ? 'Logs: Muted' : 'Logs: Active'}
             </button>
           )}
 
@@ -97,17 +97,11 @@ export default function ResultsTable({
       <div className="results-log-list">
         {displayed.length === 0 ? (
           <div className="empty-log-state">
-            {disableLogs ? (
-              <div className="muted-logs-notice">
-                <span className="muted-icon">🔇</span>
-                <h4>Logging is Disabled</h4>
-                <p>Individual request logs are muted to maximize performance and throughput. High-level statistics are updating live above.</p>
-              </div>
-            ) : results.length === 0 ? (
-              'No requests executed yet. Paste a request and click ▶ Run Test.'
-            ) : (
-              'No log entries match the filter.'
-            )}
+            {disableLogs
+              ? 'Logs muted.'
+              : results.length === 0
+                ? 'No requests executed yet.'
+                : 'No log entries match the filter.'}
           </div>
         ) : (
           displayed.map((r) => {
@@ -223,38 +217,38 @@ function StatusBadge({ result }: { result: RequestResult }) {
   if (result.status_code) {
     const code = result.status_code;
     let badgeClass = 'badge-2xx';
-    let label = `✓ ${code} OK`;
+    let label = `${code} OK`;
 
     if (code >= 500) {
       badgeClass = 'badge-5xx';
-      label = `💥 ${code} Server Err`;
+      label = `${code} Error`;
     } else if (code >= 400) {
       badgeClass = 'badge-4xx';
-      label = `✗ ${code} Error`;
+      label = `${code} Error`;
     } else if (code >= 300) {
       badgeClass = 'badge-3xx';
-      label = `↪ ${code} Redirect`;
+      label = `${code} Redirect`;
     }
 
     return <span className={`badge ${badgeClass}`}>{label}</span>;
   }
 
   if (result.state === 'running') {
-    return <span className="badge badge-running">⚡ Executing…</span>;
+    return <span className="badge badge-running">Executing…</span>;
   }
 
   if (result.state === 'cancelled') {
-    return <span className="badge badge-pending">■ Cancelled</span>;
+    return <span className="badge badge-pending">Cancelled</span>;
   }
 
   if (result.error) {
     if (result.error.includes('timed out')) {
-      return <span className="badge badge-error">⏱ Timeout</span>;
+      return <span className="badge badge-error">Timeout</span>;
     }
-    return <span className="badge badge-error">⚡ Error</span>;
+    return <span className="badge badge-error">Error</span>;
   }
 
-  return <span className="badge badge-pending">⋯ Pending</span>;
+  return <span className="badge badge-pending">Pending</span>;
 }
 
 function formatHeaders(headers?: Record<string, string>): string {
