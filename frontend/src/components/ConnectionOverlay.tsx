@@ -98,23 +98,21 @@ export default function ConnectionOverlay({
               <span className="progress-percentage font-mono">{displayProgress}%</span>
             </div>
 
-            {/* ── Modern Progress Bar ── */}
+            {/* ── Progress Bar ── */}
             <div className="progress-track">
               <div
                 className="progress-fill"
                 style={{ width: `${displayProgress}%` }}
-              >
-                <div className="progress-shimmer" />
-              </div>
+              />
             </div>
 
             <p className="connection-subtitle progress-subtitle">
-              Setting up your environment and testing suite
+              Connecting to request engine…
             </p>
           </div>
         ) : (
           <div className="connection-failed-state">
-            <div className="connection-error-icon">⚠️</div>
+            <div className="connection-error-icon font-mono">!</div>
             <h2 className="connection-title error-title">Backend Disconnected</h2>
             <p className="connection-subtitle">
               Could not establish connection to the backend server.
@@ -159,14 +157,14 @@ export default function ConnectionOverlay({
                 className="btn btn-primary connection-retry-btn"
                 onClick={onRetry}
               >
-                🔄 Retry Connection
+                Retry Connection
               </button>
               <button
                 type="button"
                 className="btn btn-secondary"
                 onClick={() => setShowUrlSettings((prev) => !prev)}
               >
-                ⚙️ {showUrlSettings ? 'Hide URL Settings' : 'Change Backend URL'}
+                {showUrlSettings ? 'Hide URL Settings' : 'Configure Backend URL'}
               </button>
               <button
                 type="button"
