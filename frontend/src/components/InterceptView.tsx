@@ -7,10 +7,10 @@ export default function InterceptView({ onSwitchToIntruder }: InterceptViewProps
   return (
     <div className="intercept-maintenance-container">
       <div className="intercept-maintenance-card">
-        <div className="maintenance-warning-icon">⚠️</div>
-        <h2 className="maintenance-title">Under Maintenance</h2>
+        <span className="badge badge-warning maintenance-badge">MAINTENANCE</span>
+        <h2 className="maintenance-title">Intercept Offline</h2>
         <p className="maintenance-description">
-          Intercept is currently disabled. Intruder is fully working.
+          Proxy Intercept is currently undergoing maintenance. The Intruder console is fully operational.
         </p>
         {onSwitchToIntruder && (
           <button
@@ -18,7 +18,7 @@ export default function InterceptView({ onSwitchToIntruder }: InterceptViewProps
             className="btn btn-primary switch-intruder-btn"
             onClick={onSwitchToIntruder}
           >
-            Go to Intruder
+            Switch to Intruder
           </button>
         )}
       </div>
