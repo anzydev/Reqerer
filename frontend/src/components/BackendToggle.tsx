@@ -34,7 +34,6 @@ export default function BackendToggle({ connected, onToggle }: BackendToggleProp
   useEffect(() => {
     activeRef.current = true;
     void doPing();
-    // Poll every 15s — Render cold boots can take 22s+, so rapid polling is wasteful
     const interval = window.setInterval(() => void doPing(), 15_000);
     return () => {
       activeRef.current = false;
@@ -52,22 +51,20 @@ export default function BackendToggle({ connected, onToggle }: BackendToggleProp
   };
 
   const statusLabel = checking
-    ? 'Waking up backend…'
+    ? 'Connecting…'
     : connected
-    ? 'Backend Connected'
-    : 'Backend Disconnected';
+      ? 'Backend Connected'
+      : 'Backend Disconnected';
 
   return (
     <div
-      className="backend-toggle-container"
-      onClick={() => void handleToggleClick()}
-      style={{ cursor: 'pointer' }}
+      className="backend-status-widget"
       title={
         checking
-          ? 'Connecting to backend (may take 15-30s on first load)…'
+          ? 'Establishing link to backend…'
           : connected
-          ? 'Click to disconnect backend'
-          : 'Click to reconnect backend'
+            ? 'Backend is connected. Click to disconnect.'
+            : 'Backend is disconnected. Click to connect.'
       }
     >
       <div className="backend-status-info">
@@ -81,22 +78,12 @@ export default function BackendToggle({ connected, onToggle }: BackendToggleProp
 
       <button
         type="button"
-        className={`toggle-switch ${connected ? 'active' : ''}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          void handleToggleClick();
-        }}
+        className={`btn btn-sm ${connected ? 'btn-secondary' : 'btn-primary'} backend-action-btn`}
+        onClick={() => void handleToggleClick()}
         disabled={checking}
-        title={
-          checking
-            ? 'Connecting…'
-            : connected
-            ? 'Click to disconnect backend'
-            : 'Click to reconnect backend'
-        }
         aria-label="Toggle backend connection"
       >
-        <span className="toggle-slider" />
+        {checking ? 'Connecting' : connected ? 'Disconnect' : 'Connect'}
       </button>
     </div>
   );
