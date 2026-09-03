@@ -2,39 +2,53 @@
 
 /* ── VS Code Dark+ Color Palette & Theme Tokens ───────────────────────────── */
 :root {
-  --bg-primary: #1e1e1e;       /* VS Code Main Editor Background */
-  --bg-secondary: #252526;     /* VS Code Sidebar & Panel Background */
-  --bg-tertiary: #2d2d2d;      /* VS Code Header & Tab Bar Background */
-  --bg-elevated: #3c3c3c;      /* VS Code Dropdown / Input Background */
+  --bg-primary: #1e1e1e;
+  /* VS Code Main Editor Background */
+  --bg-secondary: #252526;
+  /* VS Code Sidebar & Panel Background */
+  --bg-tertiary: #2d2d2d;
+  /* VS Code Header & Tab Bar Background */
+  --bg-elevated: #3c3c3c;
+  /* VS Code Dropdown / Input Background */
   --bg-overlay: rgba(0, 0, 0, 0.7);
 
   --border-subtle: #2d2d2d;
   --border-default: #3c3c3c;
   --border-muted: #252526;
 
-  --text-primary: #cccccc;     /* VS Code Main Text Color */
-  --text-secondary: #9cdcfe;   /* VS Code Variable Light Blue */
-  --text-muted: #858585;       /* VS Code Line Numbers & Muted Text */
+  --text-primary: #cccccc;
+  /* VS Code Main Text Color */
+  --text-secondary: #9cdcfe;
+  /* VS Code Variable Light Blue */
+  --text-muted: #858585;
+  /* VS Code Line Numbers & Muted Text */
   --text-inverse: #1e1e1e;
 
   /* VS Code Accent Colors */
-  --accent-blue: #007acc;      /* VS Code Blue Status Bar */
-  --accent-blue-muted: #0e639c;/* VS Code Primary Button Blue */
+  --accent-blue: #007acc;
+  /* VS Code Blue Status Bar */
+  --accent-blue-muted: #0e639c;
+  /* VS Code Primary Button Blue */
   --accent-blue-subtle: rgba(14, 99, 156, 0.3);
 
-  --accent-green: #6a9955;     /* VS Code String / Comment Green */
+  --accent-green: #6a9955;
+  /* VS Code String / Comment Green */
   --accent-green-subtle: rgba(106, 153, 85, 0.2);
 
-  --accent-red: #f48771;       /* VS Code Red Error */
+  --accent-red: #f48771;
+  /* VS Code Red Error */
   --accent-red-subtle: rgba(244, 135, 113, 0.2);
 
-  --accent-orange: #ce9178;    /* VS Code String Salmon / Orange */
+  --accent-orange: #ce9178;
+  /* VS Code String Salmon / Orange */
   --accent-orange-subtle: rgba(206, 145, 120, 0.2);
 
-  --accent-purple: #c586c0;    /* VS Code Keyword Magenta */
+  --accent-purple: #c586c0;
+  /* VS Code Keyword Magenta */
   --accent-purple-subtle: rgba(197, 134, 192, 0.2);
 
-  --accent-gold: #dcdcaa;      /* VS Code Function Gold */
+  --accent-gold: #dcdcaa;
+  /* VS Code Function Gold */
 
   --status-success: #6a9955;
   --status-error: #f48771;
@@ -64,13 +78,16 @@
   --transition-normal: 200ms ease;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   background-color: var(--bg-primary);
   color: var(--text-primary);
@@ -79,7 +96,9 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-button, input, select {
+button,
+input,
+select {
   font-family: inherit;
   font-size: inherit;
 }
@@ -93,7 +112,9 @@ button:disabled {
   opacity: 0.5;
 }
 
-code, pre, .font-mono {
+code,
+pre,
+.font-mono {
   font-family: var(--font-mono);
 }
 
@@ -180,8 +201,9 @@ code, pre, .font-mono {
 .input {
   width: 100%;
   min-height: 26px;
-  padding: 4px 8px;
-  background: #3c3c3c;
+  height: 26px;
+  padding: 3px 8px;
+  background: #1e1e1e;
   border: 1px solid #3c3c3c;
   border-radius: var(--radius-sm);
   color: #cccccc;
@@ -193,6 +215,7 @@ code, pre, .font-mono {
 
 .input:focus {
   border-color: #007fd4;
+  outline: 1px solid #007fd4;
 }
 
 .input-number {
@@ -233,12 +256,36 @@ code, pre, .font-mono {
   font-weight: 600;
 }
 
-.badge-2xx { background: rgba(106, 153, 85, 0.25); color: #89d185; }
-.badge-3xx { background: rgba(86, 156, 214, 0.25); color: #9cdcfe; }
-.badge-4xx { background: rgba(206, 145, 120, 0.25); color: #ce9178; }
-.badge-5xx, .badge-error { background: rgba(244, 135, 113, 0.25); color: #f48771; }
-.badge-pending { background: #3c3c3c; color: #858585; }
-.badge-running { background: rgba(0, 122, 204, 0.3); color: #9cdcfe; }
+.badge-2xx {
+  background: rgba(106, 153, 85, 0.25);
+  color: #89d185;
+}
+
+.badge-3xx {
+  background: rgba(86, 156, 214, 0.25);
+  color: #9cdcfe;
+}
+
+.badge-4xx {
+  background: rgba(206, 145, 120, 0.25);
+  color: #ce9178;
+}
+
+.badge-5xx,
+.badge-error {
+  background: rgba(244, 135, 113, 0.25);
+  color: #f48771;
+}
+
+.badge-pending {
+  background: #3c3c3c;
+  color: #858585;
+}
+
+.badge-running {
+  background: rgba(0, 122, 204, 0.3);
+  color: #9cdcfe;
+}
 
 /* ── Modals ──────────────────────────────────────────────────────────────── */
 .modal-backdrop {
@@ -268,5 +315,18 @@ code, pre, .font-mono {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
