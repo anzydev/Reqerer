@@ -1,17 +1,20 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reqerer — HTTP Request Testing Platform</title>
-    <script>
-      if (window.top !== window.self) {
-        document.documentElement.innerHTML = '<body style="background:#1e1e1e;color:#858585;padding:20px;font-family:sans-serif;text-align:center;"><h3>Reqerer UI cannot be nested inside an iframe.</h3></body>';
-      }
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reqerer</title>
+  <script>
+    if (window.top !== window.self) {
+      document.documentElement.innerHTML = '<body style="background:#1e1e1e;color:#858585;padding:20px;font-family:sans-serif;text-align:center;"><h3>Reqerer UI cannot be nested inside an iframe.</h3></body>';
+    }
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
